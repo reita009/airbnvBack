@@ -24,13 +24,31 @@ app.get("/test", (req, res) => {
 
 app.post("/register", async (req, res) => {
   const { userName, email, password } = req.body;
-  const user = await User.create({
-    userName,
-    email,
-    password: bcrypt.hashSync(password, salt),
-  });
 
-  res.json(user);
+  try {
+    const user = await User.create({
+      userName,
+      email,
+      password: bcrypt.hashSync(password, salt),
+    });
+
+    res.json(user);
+  } catch (err) {
+    res.status(422).json(e);
+  }
+});
+
+app.post("/login", async (req, res) => {
+  const { email, password } = req.body;
+  const user = await User.findOne({ email });
+  if (user) {
+    const passConfirmed = bcrypt.compareSync(password, user.password);
+    if (passConfirmed) {
+      res.json("pass ok");
+    } else {
+      res.json("not found");
+    }
+  }
 });
 
 app.listen(4000);
