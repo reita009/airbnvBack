@@ -2,12 +2,15 @@ const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 const User = require("./models/User");
 require("dotenv").config();
 const app = express();
+const cookieParser = require("cookie-parser");
 
 const salt = bcrypt.genSaltSync(10);
 
+app.use(cookieParser());
 app.use(express.json());
 app.use(
   cors({
@@ -34,20 +37,42 @@ app.post("/register", async (req, res) => {
 
     res.json(user);
   } catch (err) {
-    res.status(422).json(e);
+    res.status(422).json(err);
   }
 });
 
 app.post("/login", async (req, res) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email });
+  console.log("usuario: ", user);
   if (user) {
     const passConfirmed = bcrypt.compareSync(password, user.password);
     if (passConfirmed) {
-      res.json("pass ok");
+      jwt.sign(
+        { email: user.email, id: user._id },
+        process.env.JWTSECRET,
+        {},
+        (err, token) => {
+          if (err) throw err;
+          res.cookie("token", token).json(user);
+        }
+      );
     } else {
-      res.json("not found");
+      res.status(401).json({ error: "not found" });
     }
+  }
+});
+app.get("/profile", (req, res) => {
+  const { token } = req.cookies;
+  if (token) {
+    jwt.verify(token, process.env.JWTSECRET, {}, async (error, userData) => {
+      if (error) throw error;
+      const { userName, email, _id } = await User.findById(userData.id).exec();
+      res.json({ userName, email, _id });
+      console.log("hecho");
+    });
+  } else {
+    res.json(null);
   }
 });
 
