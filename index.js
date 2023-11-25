@@ -69,11 +69,13 @@ app.get("/profile", (req, res) => {
       if (error) throw error;
       const { userName, email, _id } = await User.findById(userData.id).exec();
       res.json({ userName, email, _id });
-      console.log("hecho");
     });
   } else {
     res.json(null);
   }
 });
 
+app.post("/logout", (req, res) => {
+  res.cookie("token", "").json("se deslogueó");
+});
 app.listen(4000);
