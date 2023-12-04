@@ -47,6 +47,7 @@ app.post("/login", async (req, res) => {
   console.log("usuario: ", user);
   if (user) {
     const passConfirmed = bcrypt.compareSync(password, user.password);
+    console.log("Contraseña confirmada:", passConfirmed);
     if (passConfirmed) {
       jwt.sign(
         { email: user.email, id: user._id },
