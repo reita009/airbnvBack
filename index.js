@@ -7,6 +7,7 @@ const User = require("./models/User");
 require("dotenv").config();
 const app = express();
 const cookieParser = require("cookie-parser");
+const multer = require("multer");
 
 const salt = bcrypt.genSaltSync(10);
 
@@ -74,6 +75,11 @@ app.get("/profile", (req, res) => {
   } else {
     res.json(null);
   }
+});
+
+const photosMiddleware = multer({ dest: "uploads" });
+app.post("/upload", photosMiddleware.array("photos", 100), (req, res) => {
+  res.json(req.files);
 });
 
 app.post("/logout", (req, res) => {
