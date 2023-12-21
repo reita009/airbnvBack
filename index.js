@@ -114,6 +114,7 @@ app.post("/places", (req, res) => {
     guestsNumber,
     selectedCheckIn,
     selectedCheckOut,
+    price,
   } = req.body;
   jwt.verify(token, process.env.JWTSECRET, {}, async (error, userData) => {
     if (error) throw error;
@@ -129,6 +130,7 @@ app.post("/places", (req, res) => {
       checkOut: selectedCheckOut,
       photos: photosList,
       extraInfo: extraInfo,
+      price,
     });
     res.json(placeDoc);
   });
@@ -162,6 +164,7 @@ app.put("/places", async (req, res) => {
     guestsNumber,
     selectedCheckIn,
     selectedCheckOut,
+    price,
   } = req.body;
   jwt.verify(token, process.env.JWTSECRET, {}, async (error, userData) => {
     const placeDoc = await Place.findById(id);
@@ -177,6 +180,7 @@ app.put("/places", async (req, res) => {
         checkOut: selectedCheckOut,
         photos: photosList,
         extraInfo: extraInfo,
+        price,
       });
       await placeDoc.save();
       res.json("ok");
