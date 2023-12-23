@@ -10,6 +10,7 @@ const app = express();
 const cookieParser = require("cookie-parser");
 const multer = require("multer");
 const fs = require("fs");
+const Booking = require("./models/Book");
 
 const salt = bcrypt.genSaltSync(10);
 
@@ -187,4 +188,38 @@ app.put("/places", async (req, res) => {
     }
   });
 });
+
+app.post("/booking", async (req, res) => {
+  const {
+    place,
+    totalPrice,
+    clientName,
+    clientSurname,
+    checkIn,
+    checkOut,
+    phone,
+    email,
+    numGuest,
+    reservedDays,
+  } = req.body;
+  try {
+    const book = await Booking.create({
+      clientName: clientName,
+      clientSurname: clientSurname,
+      numGuest: numGuest,
+      reservedDays: reservedDays,
+      phone: phone,
+      email: email,
+      place: place,
+      checkIn: checkIn,
+      checkOut: checkOut,
+      price: totalPrice,
+    });
+
+    res.json(book);
+  } catch (err) {
+    res.status(422).json(err);
+  }
+});
+
 app.listen(4000);
